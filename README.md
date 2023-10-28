@@ -1,2 +1,2 @@
 # employee-tracker
-View and manage the departments, roles, and employees in a company
+A command-line application to manage a company's employee database, using Node.js, Inquirer, and MySQL.
