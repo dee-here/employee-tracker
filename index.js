@@ -54,6 +54,9 @@ const mainMenuQuestions = [
 
 //create a function to handle each switch case
 function viewAllEmployees() {
+  console.clear();
+  console.log("\n");
+  console.log("\n");
   console.log("View All Employee!");
   db.viewAllEmployees()
     .then(([data]) => {
@@ -78,6 +81,7 @@ function updateEmployeeRole() {
 }
 
 function viewAllRoles() {
+  console.clear();
   console.log("viewAllRoles!");
   db.viewAllRoles()
     .then(([data]) => {
@@ -138,7 +142,6 @@ function getDepartmentChoiceList() {
 }
 
 function addRole() {
-
     console.clear();
     console.log('addRole!');
     getDepartmentChoiceList();
@@ -149,20 +152,21 @@ function addRole() {
 }
 
 function viewAllDepartments() {
-  
-  db.viewAllDepartments()
-    .then(([data]) => {
-        console.log('\n');
-        console.table(data);})
-    .catch((err) => console.log("Error: ", err));
+    console.clear();
+    db.viewAllDepartments()
+      .then(([data]) => {
+        console.log("\n");
+        console.table(data);
+      })
+      .catch((err) => console.log("Error: ", err));
 
-  showMainMenu();
+    showMainMenu();
 }
 
 
 function addDepartment() {
+    console.clear();
     console.log('addDepartment!');
-
     //show prompt to get departname and pass it to query
     inquirer
       .prompt(departmentNameQuestion)
@@ -194,6 +198,7 @@ function stopApplication() {
 //starting menu
 function showMainMenu() {
     console.clear();
+    console.log('\n');
     inquirer.prompt(mainMenuQuestions)
         .then(answer => {
             console.log('mainMenuQuestions Answers : ', answer, answer.mainMenuChoice);
@@ -248,6 +253,7 @@ function showMainMenu() {
 }
 
 function init() {
+    console.log('\n');
     showMainMenu();
          
 }
