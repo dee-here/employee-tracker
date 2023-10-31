@@ -199,12 +199,14 @@ function stopApplication() {
 function showMainMenu() {
     console.clear();
     console.log('\n');
+    process.stdout.write('\u001B[2J\u001B[0;0H');
     inquirer.prompt(mainMenuQuestions)
         .then(answer => {
             console.log('mainMenuQuestions Answers : ', answer, answer.mainMenuChoice);
             // const selection = answer.mainMenuChoice;
             switch (answer.mainMenuChoice) {
               case "View All Employees":
+                process.stdout.write('\u001B[2J\u001B[0;0H');
                 console.log("USer slected : ", answer);
                 console.log('\n');
                 viewAllEmployees();
@@ -254,6 +256,7 @@ function showMainMenu() {
 
 function init() {
     console.log('\n');
+    process.stdout.write('\u001B[2J\u001B[0;0H');
     showMainMenu();
          
 }
