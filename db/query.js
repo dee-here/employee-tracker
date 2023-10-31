@@ -23,14 +23,19 @@ class Query {
         JOIN department d ON r.department_id = d.id;`);
     }
 
-    addRole() {
-
+    addRole(title, salary, department_id) {
+        console.log("Add ROLE ", title, salary, department_id);
+        const sql = "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?);";
+        return this.connection.promise().query(sql, [title, salary, department_id] );
     }
     viewAllDepartments() {
         return this.connection.promise().query('SELECT * FROM department');
     }
-    addDepartment() {
 
+    addDepartment(name) {
+        console.log("Add departname ", name );
+        const sql = "INSERT INTO department (name) VALUES (?)";
+        return this.connection.promise().query(sql, name );
     }
 }
 

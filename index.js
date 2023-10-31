@@ -11,6 +11,29 @@ const promptQuestions = [
     }
 ];
 
+const roleQuestion = [
+    {
+        message: 'Role title ?',
+        name: 'roleTitle'
+    },
+    {
+        message: 'Role salary ?',
+        name: 'roleSalary'
+    },
+    {
+        type: 'list',
+        message: 'Select Role department?',
+        name: 'roleTitle'
+    }
+];
+
+const departmentNameQuestion = [
+    {
+        message: 'Department name ?',
+        name: 'departmentName'
+    }
+];
+
 const mainMenuQuestions = [
     {
         type: 'list',
@@ -34,7 +57,7 @@ function viewAllEmployees() {
   console.log("View All Employee!");
   db.viewAllEmployees()
     .then(([data]) => {
-      console.table("\n");
+      console.log("\n");
       console.table(data);
     })
     .catch((err) => console.log("Error: ", err));
@@ -66,16 +89,70 @@ function viewAllRoles() {
   showMainMenu();
 }
 
+function getDepartmentChoiceList() {
+  // const [rows] =
+  db.viewAllDepartments()
+    .then(([data]) => {
+      console.log("\n");
+      console.log("getDepartmentChoiceList ",data);
+      const departmentChoices = data.map((item) => ({
+        name: item.name,
+        value: item.id,
+      }));
+      console.log("getDepartmentChoiceList returns ",departmentChoices);
+
+      const roleQuestions = [
+        {
+            name: 'roleTitle',
+            message: 'Enter Role Title',
+        },
+        {
+            name: 'roleSalary',
+            message: 'Enter Role Salary',
+        },
+        {
+            type: 'list',
+            name: 'roleDepartment',
+            message: 'Select Role Department',
+            choices: departmentChoices
+        }
+      ];
+
+      inquirer.prompt(roleQuestions)
+        .then(answer => {
+            console.log("Answers are: ", answer);
+            //execute query to add ROLE 
+            db.addRole(answer.roleTitle, parseInt(answer.roleSalary, 10), answer.roleDepartment)
+            .then(([data]) => {
+                console.log('\n');
+                console.log(`Role successfully created.`);})
+            .catch((err) => console.log("Error: ", err));
+
+        })
+        .catch();
+
+      //return departmentChoices;
+
+    })
+    .catch((err) => console.log("Error: ", err));
+}
+
 function addRole() {
+
+    console.clear();
     console.log('addRole!');
-    showMainMenu();
+    getDepartmentChoiceList();
+
+
+    //createa  function to query and get all departments 
+    // showMainMenu();
 }
 
 function viewAllDepartments() {
   
   db.viewAllDepartments()
     .then(([data]) => {
-        console.table('\n');
+        console.log('\n');
         console.table(data);})
     .catch((err) => console.log("Error: ", err));
 
@@ -86,7 +163,27 @@ function viewAllDepartments() {
 function addDepartment() {
     console.log('addDepartment!');
 
-    showMainMenu();
+    //show prompt to get departname and pass it to query
+    inquirer
+      .prompt(departmentNameQuestion)
+      .then((answer) => {
+        console.log("departmentNameQuestion ", answer.departmentName);
+        if (!!answer.departmentName) {
+          db.addDepartment(answer.departmentName)
+            .then(([data]) => {
+              console.log("\n", answer.departmentName);
+              console.log(`Department: ${answer.departmentName} successfully added.`);
+              showMainMenu();
+              //console.table(data);
+            })
+            .catch((err) => console.log("Error: ", err));
+        }
+      })
+      .catch();
+
+
+
+    
 }
 
 function stopApplication() {
@@ -96,6 +193,7 @@ function stopApplication() {
 
 //starting menu
 function showMainMenu() {
+    console.clear();
     inquirer.prompt(mainMenuQuestions)
         .then(answer => {
             console.log('mainMenuQuestions Answers : ', answer, answer.mainMenuChoice);
