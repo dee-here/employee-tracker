@@ -11,7 +11,8 @@ const mainMenuQuestions = () => [
             'Add Role',
             'View All Departments',
             'Add Department',
-            'View Utilized Budget department wise',
+            'View Utilized Budget Department wise',
+            'View Employees by Department',
             'Quit'
         ]
     }
@@ -59,7 +60,7 @@ const roleQuestions = (departmentChoices) => [
     {
         type: 'list',
         name: 'roleDepartment',
-        message: 'Select Role Department',
+        message: 'Select a Department for the role',
         choices: departmentChoices,
     }
   ];
@@ -80,6 +81,15 @@ const updateEmployeeRoleQuestions = (allEmployees, allroles) => [
 
 ]
 
+const viewEmployeePerDeptQuestion = (departmentChoices) => [
+    {
+        type: 'list',
+        name: 'employeeDept',
+        message: 'Select a Department to view its employees',
+        choices: departmentChoices,
+    }
+]
+
 
 module.exports = {
   addEmployeeQuestions,
@@ -87,4 +97,5 @@ module.exports = {
   departmentNameQuestion,
   roleQuestions,
   updateEmployeeRoleQuestions,
+  viewEmployeePerDeptQuestion,
 };

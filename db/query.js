@@ -18,6 +18,9 @@ class Query {
     getAllRolesAsSelectOptions(){
         return this.connection.promise().query(`SELECT title AS name, id as value FROM role;`)
     }
+    getAllDeptsAsSelectOptions(){
+        return this.connection.promise().query(`SELECT name AS name, id as value FROM department;`)
+    }
     addEmployee(first_name, last_name, role_id, manager_id) {
         const sql = "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?);";
         return this.connection.promise().query(sql, [first_name, last_name, role_id, manager_id]);
@@ -55,6 +58,15 @@ class Query {
         JOIN department ON  role.department_id = department.id
         GROUP BY
         department.name;`);
+    }
+    viewEmployeesByDept(department_id) {
+        return this.connection.promise().query(`SELECT department.name, employee.first_name
+        FROM
+        employee
+        JOIN role ON employee.role_id = role.id
+        JOIN department ON  role.department_id = department.id
+        WHERE department.id=?
+        ORDER BY employee.first_name;`, [department_id]);
     }
 }
 

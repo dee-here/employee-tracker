@@ -7,8 +7,11 @@ const {
     departmentNameQuestion,
     roleQuestions,
     updateEmployeeRoleQuestions,
+    viewEmployeePerDeptQuestion,
 } = require("./questions");
 
+
+// Show al employees
 async function viewAllEmployees() {
     var [data] = await db.viewAllEmployees()
     console.log("\n");
@@ -16,6 +19,7 @@ async function viewAllEmployees() {
     showMainMenu();  
   }
 
+  // Add an employee
 async function addEmployee() {
     const [roleData] = await db.viewAllRoles()
     const roleChoices = roleData.map((item) => ({
@@ -23,6 +27,7 @@ async function addEmployee() {
       value: item.id,
     }));
 
+    //Get all employees as prompt choice options
     const [managerData] = await db.getAllEmployeesAsSelectOptions();
 
     managerData.push({name: "None", value: null});
@@ -31,7 +36,7 @@ async function addEmployee() {
         const result = await db.addEmployee(answers.firstName, answers.lastName, answers.role, answers.manager);
         console.log(`Employee ${answers.firstName} ${answers.lastName} added.`);
     } catch (error) {
-        console.error("Error ", error.message);
+        console.error("Error ", error);
     }
     showMainMenu();
 }
@@ -45,7 +50,7 @@ async function updateEmployeeRole () {
         const result = await db.updateEmployeeRole(answers.employeeChoice, answers.roleChoice);
         console.log(" Employee Role Updated.");
     } catch (error) {
-        console.error("Error ", error.message);
+        console.error("Error ", error);
     }
     showMainMenu();
 }
@@ -60,7 +65,6 @@ function viewAllRoles() {
     .catch((err) => console.log("Error: ", err));
 
 }
-
 
 function addRole() {
     db.viewAllDepartments()
@@ -115,7 +119,7 @@ function addDepartment() {
     .catch((err) => console.log("Error: ", err));
 }
 
-async function viewUtilizedBudgetPerDept() {
+function viewUtilizedBudgetPerDept() {
     db.viewCombinedSalaryForAllEmployeesPerDept()
       .then(([data]) => {
         console.table("\n");
@@ -123,6 +127,21 @@ async function viewUtilizedBudgetPerDept() {
         showMainMenu();
       })
       .catch((err) => console.log("Error: ", err));
+}
+
+async function viewEmployeesByDept() {
+    const [depts] = await db.getAllDeptsAsSelectOptions();
+    //console.log("depts ", depts);
+    const answers = await inquirer.prompt(viewEmployeePerDeptQuestion(depts));
+    console.log("answers ", answers);
+    try {
+        const [result] = await db.viewEmployeesByDept(answers.employeeDept);
+        console.log("\n");
+        console.table(result);
+        showMainMenu();  
+    } catch (error) {
+        console.error("Error ", error);
+    }
 }
 
 function stopApplication() {
@@ -173,10 +192,15 @@ function showMainMenu() {
                 console.log("\n");
                 addDepartment();
                 break;
-              case "View Utilized Budget department wise":
+              case "View Utilized Budget Department wise":
                 console.log("View Utilized Budget department wise : ");
                 console.log("\n");
                 viewUtilizedBudgetPerDept();
+                break;
+              case "View Employees by Department":
+                console.log("View Employees by Department : ");
+                console.log("\n");
+                viewEmployeesByDept();
                 break;
               case "Quit":
                 stopApplication();
