@@ -1,23 +1,15 @@
 const inquirer = require('inquirer');
 
 const db = require('./db/query');
-const {addEmployeeQuestions, mainMenuQuestions, departmentNameQuestion, roleQuestions} = require("./questions")
+const {
+    addEmployeeQuestions,
+    mainMenuQuestions,
+    departmentNameQuestion,
+    roleQuestions,
+    updateEmployeeRoleQuestions,
+} = require("./questions");
 
-
-//create a function to handle each switch case
-// function viewAllEmployees() {
-//   console.log("View All Employee!");
-//   db.viewAllEmployees()
-//     .then(([data]) => {
-//       console.log("\n");
-//       console.table(data);
-//       showMainMenu();
-//     })
-//     .catch((err) => console.log("Error: ", err));
-
-// }
 async function viewAllEmployees() {
-    console.log("View All Employees!");
     var [data] = await db.viewAllEmployees()
     console.log("\n");
     console.table(data);
@@ -25,61 +17,40 @@ async function viewAllEmployees() {
   }
 
 async function addEmployee() {
-    console.log('addEmployee!');
     const [roleData] = await db.viewAllRoles()
     const roleChoices = roleData.map((item) => ({
       name: item.title,
       value: item.id,
     }));
-    console.log(roleChoices);
 
-    const [managerData] = await db.viewManagers();
-    managerData.push({name: "None", value: null})
-    console.log("managerData ", managerData);
+    const [managerData] = await db.getAllEmployeesAsSelectOptions();
+
+    managerData.push({name: "None", value: null});
     const answers = await inquirer.prompt(addEmployeeQuestions(roleChoices,managerData));
-    //console.log(answers);
     try {
         const result = await db.addEmployee(answers.firstName, answers.lastName, answers.role, answers.manager);
-        console.log("Result:", result);
+        console.log(`Employee ${answers.firstName} ${answers.lastName} added.`);
     } catch (error) {
         console.error("Error ", error.message);
     }
-    console.log("OUTSIDE TRY CATCH !!!:");
     showMainMenu();
-    // return
-    // //get all roles as select choice ({ name, value})
-    // db.viewAllRoles()
-    // .then(([data]) => {
-    //   console.log("roleChoices returns ", roleChoices);
-    //   //get all Employees for employees manager field
-    //   db.viewAllEmployees()
-    //     .then(([daupdateEmployeeRoleta]) => {
-    //         console.log("managerChoice ", managerChoice);
-    //     })
-    //   //create prompts and thier choices
-  
-    //   //get answer from prompt and use prepared statements to insert into DB
-    // })
-    // .catch((err) => console.log("Error: ", err));
-
 }
 
-function updateEmployeeRole () {
-    console.log('updateEmployeeRole!');
-    // get a list of the employees (get Manager Data)
+async function updateEmployeeRole () {
+    const [allEmployeesChoice] = await db.getAllEmployeesAsSelectOptions();
+    const [allRoles] = await db.getAllRolesAsSelectOptions();
 
-    //get a list of the available roles 
-// const answers = await inquirer.prompt()
-    // {employee_id: 4, new_role_id: 5}
-
-    // await db.updateEmployeeRole(employee_id, new_role_id)
-    // what will the new role be?
+    const answers = await inquirer.prompt(updateEmployeeRoleQuestions(allEmployeesChoice, allRoles));
+    try {
+        const result = await db.updateEmployeeRole(answers.employeeChoice, answers.roleChoice);
+        console.log(" Employee Role Updated.");
+    } catch (error) {
+        console.error("Error ", error.message);
+    }
     showMainMenu();
 }
 
 function viewAllRoles() {
-//   console.clear();
-  console.log("Query view all roles:");
   db.viewAllRoles()
     .then(([data]) => {
       console.table("\n");
@@ -90,47 +61,31 @@ function viewAllRoles() {
 
 }
 
-function getDepartmentChoiceList() {
-  // const [rows] =
-  db.viewAllDepartments()
+
+function addRole() {
+    db.viewAllDepartments()
     .then(([data]) => {
-      console.log("\n");
-      console.log("getDepartmentChoiceList ",data);
       const departmentChoices = data.map((item) => ({
         name: item.name,
         value: item.id,
       }));
-      console.log("getDepartmentChoiceList returns ",departmentChoices);
 
       inquirer.prompt(roleQuestions(departmentChoices))
         .then(answer => {
-            console.log("Answers are: ", answer);
             //execute query to add ROLE 
             db.addRole(answer.roleTitle, parseInt(answer.roleSalary, 10), answer.roleDepartment)
             .then(([data]) => {
                 console.log('\n');
-                console.log(`Role successfully created.`);})
+                console.log(`Role successfully created.`);
+                showMainMenu();
+            })
             .catch((err) => console.log("Error: ", err));
-
         })
-        .catch();
-
     })
     .catch((err) => console.log("Error: ", err));
 }
 
-function addRole() {
-    // console.clear();
-    // console.log('addRole!');
-    getDepartmentChoiceList();
-
-
-    //createa  function to query and get all departments 
-    // showMainMenu();
-}
-
 function viewAllDepartments() {
-    // console.clear();
     db.viewAllDepartments()
       .then(([data]) => {
         console.log("\n");
@@ -143,29 +98,21 @@ function viewAllDepartments() {
 
 
 function addDepartment() {
-    // console.clear();
-    console.log('addDepartment!');
-    //show prompt to get departname and pass it to query
-    inquirer
-      .prompt(departmentNameQuestion)
-      .then((answer) => {
-        console.log("departmentNameQuestion ", answer.departmentName);
-        if (!!answer.departmentName) {
-          db.addDepartment(answer.departmentName)
-            .then(([data]) => {
-              console.log("\n", answer.departmentName);
-              console.log(`Department: ${answer.departmentName} successfully added.`);
-              showMainMenu();
-              //console.table(data);
-            })
-            .catch((err) => console.log("Error: ", err));
-        }
-      })
-      .catch();
-
-
-
-    
+  inquirer
+    .prompt(departmentNameQuestion())
+    .then((answer) => {
+      if (!!answer.departmentName) {
+        db.addDepartment(answer.departmentName)
+          .then(([data]) => {
+            console.log(
+              `Department: ${answer.departmentName} successfully added.`
+            );
+            showMainMenu();
+          })
+          .catch((err) => console.log("Error: ", err));
+      }
+    })
+    .catch((err) => console.log("Error: ", err));
 }
 
 function stopApplication() {
@@ -180,10 +127,9 @@ function showMainMenu() {
 
     inquirer.prompt(mainMenuQuestions())
         .then(answer => {
-            //console.log('mainMenuQuestions Answers : ', answer, answer.mainMenuChoice);
-            // const selection = answer.mainMenuChoice;
             switch (answer.mainMenuChoice) {
               case "View All Employees":
+                console.log("View All Employees : ");
                 console.log('\n');
                 viewAllEmployees();
                 break;

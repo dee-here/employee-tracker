@@ -9,10 +9,14 @@ class Query {
         FROM employee e
         INNER JOIN role r ON e.role_id = r.id
         INNER JOIN department d ON d.id = r.department_id
-        LEFT JOIN employee m ON e.manager_id = m.id;`);
+        LEFT JOIN employee m ON e.manager_id = m.id
+        ORDER BY e.id;`);
     }
-    viewManagers(){
-        return this.connection.promise().query(`SELECT CONCAT(first_name, " ", last_name) as name, id AS value FROM employee`)
+    getAllEmployeesAsSelectOptions(){
+        return this.connection.promise().query(`SELECT CONCAT(first_name, " ", last_name) as name, id AS value FROM employee;`)
+    }
+    getAllRolesAsSelectOptions(){
+        return this.connection.promise().query(`SELECT title AS name, id as value FROM role;`)
     }
     addEmployee(first_name, last_name, role_id, manager_id) {
         const sql = "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?);";

@@ -63,5 +63,27 @@ const roleQuestions = (departmentChoices) => [
     }
   ];
 
+const updateEmployeeRoleQuestions = (allEmployees, allroles) => [
+    {
+        type: 'list',
+        name: 'employeeChoice',
+        message: 'Select Employee to update Role for',
+        choices: allEmployees,
+    },
+    {
+        type: 'list',
+        name: 'roleChoice',
+        message: `Select Employee's new Role`,
+        choices: allroles,
+    }
 
-module.exports = { addEmployeeQuestions, mainMenuQuestions, departmentNameQuestion, roleQuestions}
+]
+
+
+module.exports = {
+  addEmployeeQuestions,
+  mainMenuQuestions,
+  departmentNameQuestion,
+  roleQuestions,
+  updateEmployeeRoleQuestions,
+};
