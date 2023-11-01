@@ -46,6 +46,16 @@ class Query {
         const sql = "INSERT INTO department (name) VALUES (?)";
         return this.connection.promise().query(sql, name );
     }
+
+    viewCombinedSalaryForAllEmployeesPerDept() {
+        return this.connection.promise().query(`SELECT department.name, SUM(role.salary) AS total_budget
+        FROM
+        employee
+        JOIN role ON employee.role_id = role.id
+        JOIN department ON  role.department_id = department.id
+        GROUP BY
+        department.name;`);
+    }
 }
 
 module.exports = new Query(db);

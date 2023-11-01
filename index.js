@@ -115,6 +115,16 @@ function addDepartment() {
     .catch((err) => console.log("Error: ", err));
 }
 
+async function viewUtilizedBudgetPerDept() {
+    db.viewCombinedSalaryForAllEmployeesPerDept()
+      .then(([data]) => {
+        console.table("\n");
+        console.table(data);
+        showMainMenu();
+      })
+      .catch((err) => console.log("Error: ", err));
+}
+
 function stopApplication() {
     console.log('Stopping Application');
     process.kill(0);
@@ -130,38 +140,43 @@ function showMainMenu() {
             switch (answer.mainMenuChoice) {
               case "View All Employees":
                 console.log("View All Employees : ");
-                console.log('\n');
+                console.log("\n");
                 viewAllEmployees();
                 break;
               case "Add Employee":
                 console.log("Add Employee : ");
-                console.log('\n');
+                console.log("\n");
                 addEmployee();
                 break;
               case "Update Employee Role":
                 console.log("Update Employee Role : ");
-                console.log('\n');
+                console.log("\n");
                 updateEmployeeRole();
                 break;
               case "View All Roles":
                 console.log("View All Roles : ");
-                console.log('\n');
+                console.log("\n");
                 viewAllRoles();
                 break;
               case "Add Role":
                 console.log("Add Role : ");
-                console.log('\n');
+                console.log("\n");
                 addRole();
                 break;
               case "View All Departments":
                 console.log("View All Departments : ");
-                console.log('\n');
+                console.log("\n");
                 viewAllDepartments();
                 break;
               case "Add Department":
                 console.log("Add Department : ");
-                console.log('\n');
+                console.log("\n");
                 addDepartment();
+                break;
+              case "View Utilized Budget department wise":
+                console.log("View Utilized Budget department wise : ");
+                console.log("\n");
+                viewUtilizedBudgetPerDept();
                 break;
               case "Quit":
                 stopApplication();

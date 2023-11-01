@@ -11,6 +11,7 @@ const mainMenuQuestions = () => [
             'Add Role',
             'View All Departments',
             'Add Department',
+            'View Utilized Budget department wise',
             'Quit'
         ]
     }
