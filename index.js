@@ -142,9 +142,7 @@ function viewUtilizedBudgetPerDept() {
 
 async function viewEmployeesByDept() {
   const [depts] = await db.getAllDeptsAsSelectOptions();
-  //console.log("depts ", depts);
   const answers = await inquirer.prompt(viewEmployeePerDeptQuestion(depts));
-  console.log("answers ", answers);
   try {
     const [result] = await db.viewEmployeesByDept(answers.employeeDept);
     console.log("\n");
