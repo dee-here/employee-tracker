@@ -1,96 +1,93 @@
 const inquirer = require('inquirer');
 
 const db = require('./db/query');
+const {addEmployeeQuestions, mainMenuQuestions, departmentNameQuestion, roleQuestions} = require("./questions")
 
-
-const promptQuestions = [
-    {
-        message: 'Checking Prompts',
-        name: 'testPrompt',
-        default: 'HELLO PROMPT !!',
-    }
-];
-
-const roleQuestion = [
-    {
-        message: 'Role title ?',
-        name: 'roleTitle'
-    },
-    {
-        message: 'Role salary ?',
-        name: 'roleSalary'
-    },
-    {
-        type: 'list',
-        message: 'Select Role department?',
-        name: 'roleTitle'
-    }
-];
-
-const departmentNameQuestion = [
-    {
-        message: 'Department name ?',
-        name: 'departmentName'
-    }
-];
-
-const mainMenuQuestions = [
-    {
-        type: 'list',
-        message: 'What would you like to do?',
-        name: 'mainMenuChoice',
-        choices: [
-            'View All Employees',
-            'Add Employee',
-            'Update Employee Role',
-            'View All Roles',
-            'Add Role',
-            'View All Departments',
-            'Add Department',
-            'Quit'
-        ]
-    }
-];
 
 //create a function to handle each switch case
-function viewAllEmployees() {
-  console.clear();
-  console.log("\n");
-  console.log("\n");
-  console.log("View All Employee!");
-  db.viewAllEmployees()
-    .then(([data]) => {
-      console.log("\n");
-      console.table(data);
-    })
-    .catch((err) => console.log("Error: ", err));
+// function viewAllEmployees() {
+//   console.log("View All Employee!");
+//   db.viewAllEmployees()
+//     .then(([data]) => {
+//       console.log("\n");
+//       console.table(data);
+//       showMainMenu();
+//     })
+//     .catch((err) => console.log("Error: ", err));
 
-  showMainMenu();
-}
+// }
+async function viewAllEmployees() {
+    console.log("View All Employees!");
+    var [data] = await db.viewAllEmployees()
+    console.log("\n");
+    console.table(data);
+    showMainMenu();  
+  }
 
-function addEmployee() {
+async function addEmployee() {
     console.log('addEmployee!');
+    const [roleData] = await db.viewAllRoles()
+    const roleChoices = roleData.map((item) => ({
+      name: item.title,
+      value: item.id,
+    }));
+    console.log(roleChoices);
 
+    const [managerData] = await db.viewManagers();
+    managerData.push({name: "None", value: null})
+    console.log("managerData ", managerData);
+    const answers = await inquirer.prompt(addEmployeeQuestions(roleChoices,managerData));
+    //console.log(answers);
+    try {
+        const result = await db.addEmployee(answers.firstName, answers.lastName, answers.role, answers.manager);
+        console.log("Result:", result);
+    } catch (error) {
+        console.error("Error ", error.message);
+    }
+    console.log("OUTSIDE TRY CATCH !!!:");
     showMainMenu();
+    // return
+    // //get all roles as select choice ({ name, value})
+    // db.viewAllRoles()
+    // .then(([data]) => {
+    //   console.log("roleChoices returns ", roleChoices);
+    //   //get all Employees for employees manager field
+    //   db.viewAllEmployees()
+    //     .then(([daupdateEmployeeRoleta]) => {
+    //         console.log("managerChoice ", managerChoice);
+    //     })
+    //   //create prompts and thier choices
+  
+    //   //get answer from prompt and use prepared statements to insert into DB
+    // })
+    // .catch((err) => console.log("Error: ", err));
+
 }
 
-function updateEmployeeRole() {
+function updateEmployeeRole () {
     console.log('updateEmployeeRole!');
+    // get a list of the employees (get Manager Data)
 
+    //get a list of the available roles 
+// const answers = await inquirer.prompt()
+    // {employee_id: 4, new_role_id: 5}
+
+    // await db.updateEmployeeRole(employee_id, new_role_id)
+    // what will the new role be?
     showMainMenu();
 }
 
 function viewAllRoles() {
-  console.clear();
-  console.log("viewAllRoles!");
+//   console.clear();
+  console.log("Query view all roles:");
   db.viewAllRoles()
     .then(([data]) => {
       console.table("\n");
       console.table(data);
+      showMainMenu();
     })
     .catch((err) => console.log("Error: ", err));
 
-  showMainMenu();
 }
 
 function getDepartmentChoiceList() {
@@ -105,24 +102,7 @@ function getDepartmentChoiceList() {
       }));
       console.log("getDepartmentChoiceList returns ",departmentChoices);
 
-      const roleQuestions = [
-        {
-            name: 'roleTitle',
-            message: 'Enter Role Title',
-        },
-        {
-            name: 'roleSalary',
-            message: 'Enter Role Salary',
-        },
-        {
-            type: 'list',
-            name: 'roleDepartment',
-            message: 'Select Role Department',
-            choices: departmentChoices
-        }
-      ];
-
-      inquirer.prompt(roleQuestions)
+      inquirer.prompt(roleQuestions(departmentChoices))
         .then(answer => {
             console.log("Answers are: ", answer);
             //execute query to add ROLE 
@@ -135,15 +115,13 @@ function getDepartmentChoiceList() {
         })
         .catch();
 
-      //return departmentChoices;
-
     })
     .catch((err) => console.log("Error: ", err));
 }
 
 function addRole() {
-    console.clear();
-    console.log('addRole!');
+    // console.clear();
+    // console.log('addRole!');
     getDepartmentChoiceList();
 
 
@@ -152,20 +130,20 @@ function addRole() {
 }
 
 function viewAllDepartments() {
-    console.clear();
+    // console.clear();
     db.viewAllDepartments()
       .then(([data]) => {
         console.log("\n");
         console.table(data);
+        showMainMenu();
       })
       .catch((err) => console.log("Error: ", err));
-
-    showMainMenu();
+      
 }
 
 
 function addDepartment() {
-    console.clear();
+    // console.clear();
     console.log('addDepartment!');
     //show prompt to get departname and pass it to query
     inquirer
@@ -191,59 +169,55 @@ function addDepartment() {
 }
 
 function stopApplication() {
-    console.log('stopApplication');
+    console.log('Stopping Application');
     process.kill(0);
 }
 
 //starting menu
 function showMainMenu() {
-    console.clear();
     console.log('\n');
-    process.stdout.write('\u001B[2J\u001B[0;0H');
-    inquirer.prompt(mainMenuQuestions)
+    console.log('What would you like to do :');
+
+    inquirer.prompt(mainMenuQuestions())
         .then(answer => {
-            console.log('mainMenuQuestions Answers : ', answer, answer.mainMenuChoice);
+            //console.log('mainMenuQuestions Answers : ', answer, answer.mainMenuChoice);
             // const selection = answer.mainMenuChoice;
             switch (answer.mainMenuChoice) {
               case "View All Employees":
-                process.stdout.write('\u001B[2J\u001B[0;0H');
-                console.log("USer slected : ", answer);
                 console.log('\n');
                 viewAllEmployees();
                 break;
               case "Add Employee":
-                console.log("User slected : ", answer);
+                console.log("Add Employee : ");
                 console.log('\n');
                 addEmployee();
                 break;
               case "Update Employee Role":
-                console.log("USer slected : ", answer);
+                console.log("Update Employee Role : ");
                 console.log('\n');
                 updateEmployeeRole();
                 break;
               case "View All Roles":
-                console.log("USer slected : ", answer);
+                console.log("View All Roles : ");
                 console.log('\n');
                 viewAllRoles();
                 break;
               case "Add Role":
-                console.log("USer slected : ", answer);
+                console.log("Add Role : ");
                 console.log('\n');
                 addRole();
                 break;
               case "View All Departments":
-                console.log("USer slected : ", answer);
+                console.log("View All Departments : ");
                 console.log('\n');
                 viewAllDepartments();
                 break;
               case "Add Department":
-                console.log("USer slected : ", answer);
+                console.log("Add Department : ");
                 console.log('\n');
                 addDepartment();
                 break;
               case "Quit":
-                console.log("USer slected : ", answer);
-                console.log('\n');
                 stopApplication();
                 break;
               default:
@@ -256,7 +230,6 @@ function showMainMenu() {
 
 function init() {
     console.log('\n');
-    process.stdout.write('\u001B[2J\u001B[0;0H');
     showMainMenu();
          
 }
